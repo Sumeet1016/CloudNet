@@ -20,6 +20,11 @@ function formatBytes(bytes) {
   return `${val.toFixed(1)} ${units[i]}`
 }
 
+const SEVERITY_STYLES = {
+  WARNING: 'bg-amber-50 text-amber-700 border-amber-200',
+  CRITICAL: 'bg-red-50 text-red-700 border-red-200',
+}
+
 export default function CloudProviders() {
   const [providers, setProviders] = useState([])
   const [usage, setUsage] = useState({})
@@ -186,8 +191,8 @@ export default function CloudProviders() {
         )}
         {type === 'BACKBLAZE_B2' && (
           <p className="text-xs text-gray-400 mt-2">
-            Get the access key id and secret key from your Upstash Blob bucket page. Bucket name is
-            optional — leave blank to use the configured default.
+            Get the Key ID and Application Key from your Backblaze B2 bucket's Application Keys page.
+            Bucket name is optional — leave blank to use the configured default.
           </p>
         )}
       </div>
@@ -211,13 +216,25 @@ export default function CloudProviders() {
               {providers.map((p) => {
                 const q = quotas[p.id]
                 const h = health[p.id]
+                const severity = q?.severity
+                const showBadge = severity && severity !== 'NORMAL'
                 return (
                   <tr key={p.id} className="border-b border-gray-50">
                     <td className="py-2">{p.displayName}</td>
                     <td className="py-2">{p.type.replaceAll('_', ' ')}</td>
-                    <td className="py-2 w-56">
-                      <div className="text-xs text-gray-600 mb-1">
-                        {formatBytes(usage[p.id])} / {q ? formatBytes(q.quotaBytes) : '—'}
+                    <td className="py-2 w-64">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs text-gray-600">
+                          {formatBytes(usage[p.id])} / {q ? formatBytes(q.quotaBytes) : '—'}
+                        </span>
+                        {showBadge && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded border text-[10px] font-medium ${SEVERITY_STYLES[severity]}`}
+                            title={q.alertMessage || ''}
+                          >
+                            {severity}
+                          </span>
+                        )}
                       </div>
                       {q && (
                         <div className="w-full bg-gray-100 rounded-full h-1.5">

@@ -5,9 +5,9 @@ import com.cloudnest.dto.ProviderHealth;
 import com.cloudnest.dto.ProviderQuota;
 import com.cloudnest.entity.CloudProvider;
 import com.cloudnest.entity.ProviderType;
+import com.cloudnest.entity.QuotaAlert;
 import com.cloudnest.entity.User;
 import com.cloudnest.repository.CloudProviderRepository;
-import com.cloudnest.service.storage.CloudStorageProvider;
 import com.cloudnest.service.storage.StorageProviderFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,19 +21,12 @@ public class CloudProviderService {
     private final CloudProviderRepository cloudProviderRepository;
     private final StorageProviderFactory storageProviderFactory;
     private final ActivityLogService activityLogService;
+    private final QuotaService quotaService;
 
     public List<CloudProvider> getUserProviders(User user) {
         return cloudProviderRepository.findByUser(user);
     }
 
-    /**
-     * Connects a new storage provider for the user.
-     * - LOCAL_DISK / SIMULATED_S3: no external auth needed, connects instantly.
-     * - GOOGLE_DRIVE: request.authorizationCode holds an OAuth access token.
-     * - UPSTASH_BLOB: request.authorizationCode holds the secret key,
-     *                 request.accessKeyId holds the access key id,
-     *                 request.bucketName optionally overrides the bucket.
-     */
     public CloudProvider connectProvider(User user, CloudProviderRequest request) {
         CloudProvider provider = CloudProvider.builder()
                 .user(user)
@@ -62,18 +55,22 @@ public class CloudProviderService {
         return storageProviderFactory.getProvider(provider.getType()).getUsedStorageBytes(provider);
     }
 
+    /** Now delegates to QuotaService so alert transitions are persisted. */
     public ProviderQuota getQuotaForProvider(CloudProvider provider) {
-        return storageProviderFactory.getProvider(provider.getType()).getQuota(provider);
+        return quotaService.evaluateAndPersist(provider);
     }
 
     public ProviderHealth healthCheckProvider(CloudProvider provider) {
         return storageProviderFactory.getProvider(provider.getType()).healthCheck(provider);
     }
 
-    /** Resolve a provider that belongs to the given user, or throw. */
     public CloudProvider getOwnedProvider(User user, Long providerId) {
         return cloudProviderRepository.findByIdAndUser(providerId, user)
                 .orElseThrow(() -> new IllegalArgumentException("Provider not found"));
+    }
+
+    public List<QuotaAlert> getUnacknowledgedAlerts(User user) {
+        return quotaService.getUnacknowledgedAlerts(user);
     }
 
     private String defaultName(ProviderType type) {

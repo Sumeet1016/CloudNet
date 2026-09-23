@@ -1,6 +1,8 @@
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\BackupPolicyRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\QuotaAlertRepository.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\BackupService.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\CloudProviderRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\QuotaAlertResponse.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\ProviderType.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\CloudProviderService.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\DashboardController.java
@@ -15,6 +17,7 @@ C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\Storage
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\AuthService.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\BackupPolicyController.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\ScheduleRequest.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\QuotaAlert.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\BackupJobResponse.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\BackupFileRepository.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\BackblazeB2StorageProvider.java
@@ -55,6 +58,7 @@ C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\CloudProvide
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\ContentBlobRepository.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\EncryptionService.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\AuthController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\QuotaService.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\BackupSchedule.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\GoogleDriveStorageProvider.java
 C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\security\JwtUtil.java

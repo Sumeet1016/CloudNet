@@ -15,6 +15,11 @@ function formatBytes(bytes) {
   return `${val.toFixed(1)} ${units[i]}`
 }
 
+const ALERT_STYLES = {
+  WARNING: 'bg-amber-50 border-amber-200 text-amber-800',
+  CRITICAL: 'bg-red-50 border-red-200 text-red-800',
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -29,10 +34,32 @@ export default function Dashboard() {
   if (!stats) return <p className="text-gray-500">No data available yet.</p>
 
   const chartData = Object.entries(stats.backupsByProvider || {}).map(([name, count]) => ({ name, count }))
+  const alerts = stats.quotaAlerts || []
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
+
+      {alerts.length > 0 && (
+        <div className="space-y-2">
+          {alerts.map((a) => (
+            <div
+              key={a.id}
+              className={`flex items-start justify-between border rounded-lg px-4 py-3 text-sm ${ALERT_STYLES[a.severity] || 'bg-gray-50 border-gray-200'}`}
+            >
+              <div>
+                <p className="font-semibold">
+                  {a.severity} · {a.providerName}
+                </p>
+                <p className="text-xs mt-0.5">{a.message}</p>
+              </div>
+              <span className="text-xs opacity-70">
+                {a.percentUsed.toFixed(1)}% · {formatBytes(a.usedBytes)} / {formatBytes(a.quotaBytes)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Total Backups" value={stats.totalBackups} />

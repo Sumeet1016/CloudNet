@@ -2,6 +2,7 @@ package com.cloudnest.service;
 
 import com.cloudnest.dto.DashboardStatsResponse;
 import com.cloudnest.dto.ActivityLogResponse;
+import com.cloudnest.dto.QuotaAlertResponse;
 import com.cloudnest.entity.BackupJob;
 import com.cloudnest.entity.CloudProvider;
 import com.cloudnest.entity.User;
@@ -29,6 +30,7 @@ public class DashboardService {
     private final CloudProviderService cloudProviderService;
     private final BackupFileRepository backupFileRepository;
     private final ContentBlobRepository contentBlobRepository;
+    private final QuotaService quotaService;
 
     public DashboardStatsResponse getStats(User user) {
         List<BackupJob> jobs = backupJobRepository.findByUserOrderByStartedAtDesc(user);
@@ -38,13 +40,11 @@ public class DashboardService {
         long success = backupJobRepository.countByUserAndStatus(user, BackupJob.BackupStatus.SUCCESS);
         long failed = backupJobRepository.countByUserAndStatus(user, BackupJob.BackupStatus.FAILED);
 
-        // Existing behavior preserved — live sum of what each provider reports.
         long totalStorage = providers.stream()
                 .filter(CloudProvider::isConnected)
                 .mapToLong(cloudProviderService::getUsageForProvider)
                 .sum();
 
-        // --- Dedup stats (new) ---
         long logicalBytes = backupFileRepository.sumLogicalBytesByUser(user);
         long physicalBytes = contentBlobRepository.sumStoredBytesByUser(user);
         long savings = Math.max(0, logicalBytes - physicalBytes);
@@ -75,6 +75,8 @@ public class DashboardService {
                 .backupsByProvider(byProvider)
                 .recentActivity(activityLogRepository.findByUserOrderByCreatedAtDesc(user)
                         .stream().limit(10).map(ActivityLogResponse::from).toList())
+                .quotaAlerts(quotaService.getUnacknowledgedAlerts(user)
+                        .stream().map(QuotaAlertResponse::from).toList())
                 .build();
     }
 }

@@ -29,21 +29,12 @@ public class BackupService {
     private final EncryptionService encryptionService;
     private final DeduplicationService deduplicationService;
     private final ActivityLogService activityLogService;
+    private final QuotaService quotaService;
 
     public List<BackupJob> getUserJobs(User user) {
         return backupJobRepository.findByUserOrderByStartedAtDesc(user);
     }
 
-    /**
-     * Manually triggered backup.
-     *
-     * For each file:
-     *   1. Write to a temp file
-     *   2. Compute SHA-256 of the plaintext
-     *   3. Ask DeduplicationService for a blob (reuses if identical content
-     *      already exists for this user+provider; uploads only on miss)
-     *   4. Record a BackupFile pointing at that blob
-     */
     public BackupJob runManualBackup(User user, Long cloudProviderId, BackupPolicy policy,
                                      String jobName, MultipartFile[] uploadedFiles) {
 
@@ -71,10 +62,8 @@ public class BackupService {
                 File tempInput = File.createTempFile("cloudnest-upload-", "-" + mf.getOriginalFilename());
                 mf.transferTo(tempInput);
 
-                // 1) Hash the PLAINTEXT — this is the dedup key
                 String checksum = encryptionService.computeChecksum(tempInput);
 
-                // 2) Ask dedup service to get-or-create the blob (upload only on miss)
                 String targetName = encrypt
                         ? mf.getOriginalFilename() + ".enc"
                         : mf.getOriginalFilename();
@@ -88,11 +77,9 @@ public class BackupService {
                     stored++;
                 }
 
-                // 3) Compute next version (user-scoped — fixes a latent cross-user bug)
                 int nextVersion = backupFileRepository
                         .findMaxVersionForUserAndFileName(user, mf.getOriginalFilename()) + 1;
 
-                // 4) Link BackupFile -> ContentBlob
                 BackupFile backupFile = BackupFile.builder()
                         .backupJob(job)
                         .originalFileName(mf.getOriginalFilename())
@@ -114,6 +101,9 @@ public class BackupService {
                     String.format("Backup '%s' on %s — %d stored, %d deduplicated",
                             job.getJobName(), provider.getType(), stored, dedupHits));
 
+            // NEW: post-backup quota check (never fails the backup)
+            quotaService.checkAfterBackup(provider);
+
         } catch (IOException | RuntimeException e) {
             log.error("Backup job {} failed", job.getId(), e);
             job.setStatus(BackupJob.BackupStatus.FAILED);
@@ -127,7 +117,6 @@ public class BackupService {
         return backupJobRepository.save(job);
     }
 
-    /** Restores a file: downloads the blob's bytes + decrypts if needed. */
     public File restoreFile(User user, Long backupFileId) {
         BackupFile backupFile = backupFileRepository.findById(backupFileId)
                 .orElseThrow(() -> new IllegalArgumentException("Backup file not found"));
@@ -137,8 +126,6 @@ public class BackupService {
             throw new SecurityException("Not authorized to restore this file");
         }
 
-        // Prefer the blob's provider/storagePath. Fall back to BackupFile fields
-        // so pre-dedup rows still restore.
         CloudProvider provider;
         String storagePath;
 

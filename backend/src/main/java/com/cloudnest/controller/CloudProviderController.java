@@ -4,6 +4,7 @@ import com.cloudnest.dto.CloudProviderRequest;
 import com.cloudnest.dto.CloudProviderResponse;
 import com.cloudnest.dto.ProviderHealth;
 import com.cloudnest.dto.ProviderQuota;
+import com.cloudnest.dto.QuotaAlertResponse;
 import com.cloudnest.entity.CloudProvider;
 import com.cloudnest.security.CurrentUserProvider;
 import com.cloudnest.service.CloudProviderService;
@@ -58,5 +59,12 @@ public class CloudProviderController {
     public ResponseEntity<ProviderHealth> healthCheck(@PathVariable Long id) {
         CloudProvider provider = cloudProviderService.getOwnedProvider(currentUserProvider.getCurrentUser(), id);
         return ResponseEntity.ok(cloudProviderService.healthCheckProvider(provider));
+    }
+
+    @GetMapping("/alerts")
+    public ResponseEntity<List<QuotaAlertResponse>> getAlerts() {
+        return ResponseEntity.ok(cloudProviderService
+                .getUnacknowledgedAlerts(currentUserProvider.getCurrentUser())
+                .stream().map(QuotaAlertResponse::from).toList());
     }
 }
