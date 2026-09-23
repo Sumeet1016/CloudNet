@@ -20,5 +20,5 @@ public class DashboardStatsResponse {
     private int connectedProviders;
     private int activeSchedules;
     private Map<String, Long> backupsByProvider;
-    private List<Object> recentActivity;
+    private List<ActivityLogResponse> recentActivity;
 }

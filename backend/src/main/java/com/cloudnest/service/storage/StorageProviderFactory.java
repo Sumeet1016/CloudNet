@@ -16,12 +16,14 @@ public class StorageProviderFactory {
     private final GoogleDriveStorageProvider googleDriveStorageProvider;
     private final LocalDiskStorageProvider localDiskStorageProvider;
     private final SimulatedS3StorageProvider simulatedS3StorageProvider;
+    private final BackblazeB2StorageProvider backblazeB2StorageProvider;
 
     public CloudStorageProvider getProvider(ProviderType type) {
         return switch (type) {
             case GOOGLE_DRIVE -> googleDriveStorageProvider;
             case LOCAL_DISK -> localDiskStorageProvider;
             case SIMULATED_S3 -> simulatedS3StorageProvider;
+            case BACKBLAZE_B2 -> backblazeB2StorageProvider;
         };
     }
 }

@@ -1,6 +1,7 @@
 package com.cloudnest.service;
 
 import com.cloudnest.dto.DashboardStatsResponse;
+import com.cloudnest.dto.ActivityLogResponse;
 import com.cloudnest.entity.BackupJob;
 import com.cloudnest.entity.CloudProvider;
 import com.cloudnest.entity.User;
@@ -53,8 +54,8 @@ public class DashboardService {
                 .activeSchedules((int) backupScheduleRepository.findByUser(user).stream()
                         .filter(s -> s.isActive()).count())
                 .backupsByProvider(byProvider)
-                .recentActivity(List.copyOf(activityLogRepository.findByUserOrderByCreatedAtDesc(user)
-                        .stream().limit(10).toList()))
+                .recentActivity(activityLogRepository.findByUserOrderByCreatedAtDesc(user)
+                        .stream().limit(10).map(ActivityLogResponse::from).toList())
                 .build();
     }
 }

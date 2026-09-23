@@ -25,28 +25,37 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
-# JWT settings
 app:
   jwt:
     secret: cloudnest-super-secret-key-change-this-in-production-please-2026
-    expiration-ms: 86400000   # 24 hours
+    expiration-ms: 86400000
 
-  # Local folders used to simulate storage providers (swap with real SDKs later)
   storage:
     local-disk-path: ./storage/local-disk
     simulated-s3-path: ./storage/simulated-s3
     temp-path: ./storage/temp
 
-  # Google Drive OAuth (fill these in with your own credentials from Google Cloud Console)
   google:
     client-id: YOUR_GOOGLE_CLIENT_ID
     client-secret: YOUR_GOOGLE_CLIENT_SECRET
     redirect-uri: http://localhost:8080/api/cloud-providers/google/callback
     application-name: CloudNest
+  
+  backblaze:
+    endpoint: https://s3.us-east-005.backblazeb2.com
+    region: us-east-005
+    access-key-id: '0052509c551fc7f0000000002'
+    secret-access-key: 'K005NOt/iOWhHdq+OUOPQGvyzXUg0eQ'
+    bucket-name: cloudnest-backups
 
-  # AES encryption key for backed-up files (32 chars = AES-256). Change in production.
+  quotas:
+    google-drive-bytes: 16106127360
+    local-disk-bytes: 107374182400
+    simulated-s3-bytes: 5368709120
+    backblaze-bytes: 1073741824
+
   encryption:
-    secret-key: cloudnest2026aes256secretkey!!!!
+    secret-key: CloudNest2026AES256SecretKey!!!!
 
 logging:
   level:

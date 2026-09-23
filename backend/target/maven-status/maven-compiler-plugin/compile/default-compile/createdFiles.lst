@@ -22,6 +22,7 @@ com\cloudnest\repository\BackupScheduleRepository.class
 com\cloudnest\controller\AuthController.class
 com\cloudnest\entity\ActivityLog$ActivityLogBuilder.class
 com\cloudnest\dto\CloudProviderRequest.class
+com\cloudnest\dto\ProviderHealth.class
 com\cloudnest\dto\AuthResponse.class
 com\cloudnest\dto\DashboardStatsResponse$DashboardStatsResponseBuilder.class
 com\cloudnest\entity\Industry.class
@@ -58,10 +59,13 @@ com\cloudnest\entity\BackupJob.class
 com\cloudnest\CloudNestApplication.class
 com\cloudnest\service\DashboardService.class
 com\cloudnest\security\JwtUtil.class
+com\cloudnest\dto\ProviderCapabilities.class
 com\cloudnest\entity\BackupSchedule.class
 com\cloudnest\repository\BackupFileRepository.class
+com\cloudnest\dto\ProviderQuota.class
 com\cloudnest\dto\BackupJobResponse$BackupJobResponseBuilder.class
 com\cloudnest\dto\RegisterRequest.class
 com\cloudnest\service\ScheduleService.class
 com\cloudnest\service\storage\GoogleDriveStorageProvider.class
 com\cloudnest\service\BackupService.class
+com\cloudnest\dto\ProviderHealth$Status.class

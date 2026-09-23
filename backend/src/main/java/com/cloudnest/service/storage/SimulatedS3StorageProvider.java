@@ -1,5 +1,8 @@
 package com.cloudnest.service.storage;
 
+import com.cloudnest.dto.ProviderCapabilities;
+import com.cloudnest.dto.ProviderHealth;
+import com.cloudnest.dto.ProviderQuota;
 import com.cloudnest.entity.CloudProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +18,6 @@ import java.nio.file.StandardCopyOption;
 /**
  * Simulates an S3-style bucket using a local folder, behind the exact same
  * CloudStorageProvider contract a real AWS SDK implementation would use.
- * To go live: swap the body of these methods for AmazonS3 client calls
- * (putObject/getObject/deleteObject) - callers never need to change.
  */
 @Slf4j
 @Component
@@ -25,10 +26,12 @@ public class SimulatedS3StorageProvider implements CloudStorageProvider {
     @Value("${app.storage.simulated-s3-path}")
     private String basePath;
 
+    @Value("${app.quotas.simulated-s3-bytes}")
+    private long quotaBytes;
+
     @Override
     public String upload(CloudProvider provider, File localFile, String targetFileName) {
         try {
-            // "bucket" per user, mirroring how S3 keys are usually namespaced
             Path bucket = Paths.get(basePath, "bucket-user-" + provider.getUser().getId());
             Files.createDirectories(bucket);
             Path objectKey = bucket.resolve(targetFileName);
@@ -68,5 +71,30 @@ public class SimulatedS3StorageProvider implements CloudStorageProvider {
         } catch (IOException e) {
             return 0;
         }
+    }
+
+    @Override
+    public ProviderHealth healthCheck(CloudProvider provider) {
+        try {
+            Path bucket = Paths.get(basePath, "bucket-user-" + provider.getUser().getId());
+            Files.createDirectories(bucket);
+            if (!Files.isWritable(bucket)) {
+                return ProviderHealth.degraded("Simulated S3 bucket exists but is not writable: " + bucket);
+            }
+            return ProviderHealth.connected("Simulated S3 bucket writable at " + bucket);
+        } catch (Exception e) {
+            return ProviderHealth.unreachable("Simulated S3 unreachable: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ProviderQuota getQuota(CloudProvider provider) {
+        long used = getUsedStorageBytes(provider);
+        return new ProviderQuota(used, quotaBytes);
+    }
+
+    @Override
+    public ProviderCapabilities getCapabilities() {
+        return new ProviderCapabilities(false, true, false);
     }
 }

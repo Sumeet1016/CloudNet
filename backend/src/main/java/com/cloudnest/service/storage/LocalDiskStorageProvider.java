@@ -1,5 +1,8 @@
 package com.cloudnest.service.storage;
 
+import com.cloudnest.dto.ProviderCapabilities;
+import com.cloudnest.dto.ProviderHealth;
+import com.cloudnest.dto.ProviderQuota;
 import com.cloudnest.entity.CloudProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +25,9 @@ public class LocalDiskStorageProvider implements CloudStorageProvider {
 
     @Value("${app.storage.local-disk-path}")
     private String basePath;
+
+    @Value("${app.quotas.local-disk-bytes}")
+    private long quotaBytes;
 
     @Override
     public String upload(CloudProvider provider, File localFile, String targetFileName) {
@@ -65,5 +71,30 @@ public class LocalDiskStorageProvider implements CloudStorageProvider {
         } catch (IOException e) {
             return 0;
         }
+    }
+
+    @Override
+    public ProviderHealth healthCheck(CloudProvider provider) {
+        try {
+            Path dir = Paths.get(basePath, "user_" + provider.getUser().getId());
+            Files.createDirectories(dir);
+            if (!Files.isWritable(dir)) {
+                return ProviderHealth.degraded("Local disk directory exists but is not writable: " + dir);
+            }
+            return ProviderHealth.connected("Local disk writable at " + dir);
+        } catch (Exception e) {
+            return ProviderHealth.unreachable("Local disk unreachable: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ProviderQuota getQuota(CloudProvider provider) {
+        long used = getUsedStorageBytes(provider);
+        return new ProviderQuota(used, quotaBytes);
+    }
+
+    @Override
+    public ProviderCapabilities getCapabilities() {
+        return new ProviderCapabilities(false, true, false);
     }
 }

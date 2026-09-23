@@ -3,5 +3,6 @@ package com.cloudnest.entity;
 public enum ProviderType {
     GOOGLE_DRIVE,
     LOCAL_DISK,
-    SIMULATED_S3
+    SIMULATED_S3,
+    BACKBLAZE_B2
 }

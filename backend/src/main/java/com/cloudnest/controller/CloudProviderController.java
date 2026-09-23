@@ -1,6 +1,9 @@
 package com.cloudnest.controller;
 
 import com.cloudnest.dto.CloudProviderRequest;
+import com.cloudnest.dto.CloudProviderResponse;
+import com.cloudnest.dto.ProviderHealth;
+import com.cloudnest.dto.ProviderQuota;
 import com.cloudnest.entity.CloudProvider;
 import com.cloudnest.security.CurrentUserProvider;
 import com.cloudnest.service.CloudProviderService;
@@ -20,13 +23,15 @@ public class CloudProviderController {
     private final CurrentUserProvider currentUserProvider;
 
     @GetMapping
-    public ResponseEntity<List<CloudProvider>> listProviders() {
-        return ResponseEntity.ok(cloudProviderService.getUserProviders(currentUserProvider.getCurrentUser()));
+    public ResponseEntity<List<CloudProviderResponse>> listProviders() {
+        return ResponseEntity.ok(cloudProviderService.getUserProviders(currentUserProvider.getCurrentUser())
+                .stream().map(CloudProviderResponse::from).toList());
     }
 
     @PostMapping("/connect")
-    public ResponseEntity<CloudProvider> connect(@Valid @RequestBody CloudProviderRequest request) {
-        return ResponseEntity.ok(cloudProviderService.connectProvider(currentUserProvider.getCurrentUser(), request));
+    public ResponseEntity<CloudProviderResponse> connect(@Valid @RequestBody CloudProviderRequest request) {
+        return ResponseEntity.ok(CloudProviderResponse.from(
+                cloudProviderService.connectProvider(currentUserProvider.getCurrentUser(), request)));
     }
 
     @DeleteMapping("/{id}")
@@ -41,5 +46,17 @@ public class CloudProviderController {
                 .stream().filter(p -> p.getId().equals(id)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Provider not found"));
         return ResponseEntity.ok(cloudProviderService.getUsageForProvider(provider));
+    }
+
+    @GetMapping("/{id}/quota")
+    public ResponseEntity<ProviderQuota> getQuota(@PathVariable Long id) {
+        CloudProvider provider = cloudProviderService.getOwnedProvider(currentUserProvider.getCurrentUser(), id);
+        return ResponseEntity.ok(cloudProviderService.getQuotaForProvider(provider));
+    }
+
+    @GetMapping("/{id}/health")
+    public ResponseEntity<ProviderHealth> healthCheck(@PathVariable Long id) {
+        CloudProvider provider = cloudProviderService.getOwnedProvider(currentUserProvider.getCurrentUser(), id);
+        return ResponseEntity.ok(cloudProviderService.healthCheckProvider(provider));
     }
 }

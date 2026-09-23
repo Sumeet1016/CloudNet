@@ -31,12 +31,20 @@ public class CloudProvider {
     @Column(name = "display_name")
     private String displayName;
 
-    /** OAuth access token (for Google Drive). Null/unused for local & simulated providers. */
+    /** OAuth access token (Google Drive) or secret key (Upstash Blob). */
     @Column(name = "access_token", length = 2048)
     private String accessToken;
 
     @Column(name = "refresh_token", length = 2048)
     private String refreshToken;
+
+    /** Access key id — used by S3-compatible providers like Upstash Blob. */
+    @Column(name = "access_key_id", length = 512)
+    private String accessKeyId;
+
+    /** Optional per-provider bucket name override (Upstash Blob). */
+    @Column(name = "bucket_name", length = 255)
+    private String bucketName;
 
     @Column(name = "connected")
     @Builder.Default

@@ -1,53 +1,59 @@
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\config\SecurityConfig.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\storage\StorageProviderFactory.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\AuthService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\BackupFile.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\BackupFileRepository.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\ScheduleService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\security\CurrentUserProvider.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\security\JwtUtil.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\DashboardController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\storage\LocalDiskStorageProvider.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\ScheduleController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\ActivityLog.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\BackupScheduleRepository.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\CloudProvider.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\CloudProviderController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\Industry.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\ProviderType.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\Role.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\ActivityLogController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\exception\GlobalExceptionHandler.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\BackupJobRepository.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\security\UserDetailsServiceImpl.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\UserRepository.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\BackupPolicyService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\AuthResponse.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\BackupSchedule.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\DashboardStatsResponse.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\BackupPolicyRequest.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\ScheduleRequest.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\BackupService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\DashboardService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\CloudNestApplication.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\RegisterRequest.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\BackupExecutionHelper.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\ActivityLogService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\BackupPolicyRepository.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\User.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\EncryptionService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\storage\CloudStorageProvider.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\storage\SimulatedS3StorageProvider.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\storage\GoogleDriveStorageProvider.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\AuthController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\LoginRequest.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\security\JwtAuthFilter.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\BackupJobResponse.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\BackupJob.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\BackupPolicyController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\dto\CloudProviderRequest.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\entity\BackupPolicy.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\service\CloudProviderService.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\controller\BackupController.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\CloudProviderRepository.java
-C:\Users\Sumeet Yadav\Downloads\cloudnest\backend\src\main\java\com\cloudnest\repository\ActivityLogRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\BackupPolicyRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\BackupService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\CloudProviderRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\ProviderType.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\CloudProviderService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\DashboardController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\ProviderHealth.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\ProviderQuota.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\ActivityLogResponse.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\BackupPolicyRequest.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\CloudProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\BackupPolicy.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\BackupJobRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\StorageProviderFactory.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\AuthService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\BackupPolicyController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\ScheduleRequest.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\BackupJobResponse.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\BackupFileRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\BackblazeB2StorageProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\CloudStorageProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\ScheduleController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\BackupScheduleRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\BackupController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\BackupFile.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\SimulatedS3StorageProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\exception\GlobalExceptionHandler.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\config\SecurityConfig.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\User.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\ProviderCapabilities.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\ActivityLogService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\ActivityLogController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\CloudProviderResponse.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\security\UserDetailsServiceImpl.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\CloudNestApplication.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\UserRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\LocalDiskStorageProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\AuthResponse.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\DashboardStatsResponse.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\repository\ActivityLogRepository.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\ActivityLog.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\ScheduleService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\Industry.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\Role.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\security\JwtAuthFilter.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\security\CurrentUserProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\RegisterRequest.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\CloudProviderRequest.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\BackupExecutionHelper.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\BackupJob.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\CloudProviderController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\EncryptionService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\controller\AuthController.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\entity\BackupSchedule.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\storage\GoogleDriveStorageProvider.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\security\JwtUtil.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\DashboardService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\service\BackupPolicyService.java
+C:\CloudNet\CloudNet\backend\src\main\java\com\cloudnest\dto\LoginRequest.java

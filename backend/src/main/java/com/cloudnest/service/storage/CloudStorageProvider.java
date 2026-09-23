@@ -1,34 +1,63 @@
 package com.cloudnest.service.storage;
 
+import com.cloudnest.dto.ProviderCapabilities;
+import com.cloudnest.dto.ProviderHealth;
+import com.cloudnest.dto.ProviderQuota;
 import com.cloudnest.entity.CloudProvider;
 
 import java.io.File;
-import java.io.InputStream;
 
 /**
- * Strategy interface implemented by every supported storage backend.
- * Adding a new real provider (e.g. AWS S3, Azure Blob) later just means
- * writing one new class here and registering it in StorageProviderFactory -
- * nothing else in the app needs to change.
+ * The single contract every storage backend in CloudNest must implement.
+ * The rest of the application never references a concrete provider class —
+ * it only ever talks to this interface (Strategy pattern).
+ *
+ * Adding a new real cloud = one new class implementing this interface +
+ * one line in StorageProviderFactory.
  */
 public interface CloudStorageProvider {
 
     /**
-     * Uploads a local file to the remote/simulated store and returns a
-     * storage path/object-id that can later be used to fetch it back.
+     * Upload a local file into the provider.
+     *
+     * @return a provider-specific storage path/identifier that can later be
+     *         passed to download() and delete().
      */
     String upload(CloudProvider provider, File localFile, String targetFileName);
 
     /**
-     * Downloads the object at storagePath into a local file and returns it.
+     * Download the file identified by storagePath into a local temp file.
      */
     File download(CloudProvider provider, String storagePath);
 
     /**
-     * Deletes the object at storagePath. Used for retention-policy cleanup.
+     * Permanently delete the file identified by storagePath.
      */
     void delete(CloudProvider provider, String storagePath);
 
-    /** Used by the dashboard to report how much space a provider is using */
+    /**
+     * Bytes currently used by this user on this provider.
+     * May return 0 if the provider cannot report it.
+     */
     long getUsedStorageBytes(CloudProvider provider);
+
+    /**
+     * Perform a lightweight connectivity/health check for this provider.
+     * Must never throw — failures are reported via ProviderHealth.UNREACHABLE.
+     */
+    ProviderHealth healthCheck(CloudProvider provider);
+
+    /**
+     * Compute used vs configured quota for this provider.
+     * The quota value comes from application.yml (app.quotas.*).
+     */
+    ProviderQuota getQuota(CloudProvider provider);
+
+    /**
+     * What this provider supports. Defaults are conservative; providers
+     * override to advertise features they actually have.
+     */
+    default ProviderCapabilities getCapabilities() {
+        return new ProviderCapabilities(false, false, false);
+    }
 }

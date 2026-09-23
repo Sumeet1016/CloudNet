@@ -1,5 +1,8 @@
 package com.cloudnest.service.storage;
 
+import com.cloudnest.dto.ProviderCapabilities;
+import com.cloudnest.dto.ProviderHealth;
+import com.cloudnest.dto.ProviderQuota;
 import com.cloudnest.entity.CloudProvider;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
@@ -24,10 +27,6 @@ import java.util.List;
  * stores the user's OAuth access/refresh token, obtained during the connect
  * flow in CloudProviderService. Files are uploaded into a dedicated
  * "CloudNest-Backups" folder in the user's own Drive.
- *
- * To run this for real: create OAuth 2.0 credentials in Google Cloud Console
- * (APIs & Services -> Credentials), enable the Drive API, and put the
- * client id/secret in application.yml under app.google.*
  */
 @Slf4j
 @Component
@@ -35,6 +34,9 @@ public class GoogleDriveStorageProvider implements CloudStorageProvider {
 
     @Value("${app.google.application-name}")
     private String applicationName;
+
+    @Value("${app.quotas.google-drive-bytes}")
+    private long quotaBytes;
 
     private Drive buildDriveClient(CloudProvider provider) {
         try {
@@ -52,7 +54,6 @@ public class GoogleDriveStorageProvider implements CloudStorageProvider {
         }
     }
 
-    /** Finds (or creates) the "CloudNest-Backups" folder in the user's Drive and returns its id */
     private String getOrCreateBackupFolder(Drive drive) throws IOException {
         String folderName = "CloudNest-Backups";
         FileList result = drive.files().list()
@@ -92,7 +93,6 @@ public class GoogleDriveStorageProvider implements CloudStorageProvider {
                     .execute();
 
             log.info("[GoogleDrive] Uploaded file, id={}", uploaded.getId());
-            // storagePath for Google Drive is the file's Drive object id
             return uploaded.getId();
         } catch (IOException e) {
             throw new RuntimeException("Google Drive upload failed: " + e.getMessage(), e);
@@ -140,5 +140,32 @@ public class GoogleDriveStorageProvider implements CloudStorageProvider {
             log.warn("Could not fetch Google Drive usage: {}", e.getMessage());
             return 0L;
         }
+    }
+
+    @Override
+    public ProviderHealth healthCheck(CloudProvider provider) {
+        try {
+            Drive drive = buildDriveClient(provider);
+            // Lightweight authenticated call: list up to 1 file in the app folder
+            drive.files().list()
+                    .setPageSize(1)
+                    .setFields("files(id)")
+                    .execute();
+            return ProviderHealth.connected("Google Drive reachable");
+        } catch (Exception e) {
+            log.warn("Google Drive health check failed: {}", e.getMessage());
+            return ProviderHealth.unreachable("Google Drive unreachable: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ProviderQuota getQuota(CloudProvider provider) {
+        long used = getUsedStorageBytes(provider);
+        return new ProviderQuota(used, quotaBytes);
+    }
+
+    @Override
+    public ProviderCapabilities getCapabilities() {
+        return new ProviderCapabilities(true, true, false);
     }
 }
