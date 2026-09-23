@@ -38,7 +38,11 @@ export default function Dashboard() {
         <StatCard label="Total Backups" value={stats.totalBackups} />
         <StatCard label="Successful" value={stats.successfulBackups} accent="text-green-600" />
         <StatCard label="Failed" value={stats.failedBackups} accent="text-red-600" />
-        <StatCard label="Storage Used" value={formatBytes(stats.totalStorageUsedBytes)} />
+        <StatCard label="Storage Used" value={formatBytes(stats.physicalStorageBytes ?? stats.totalStorageUsedBytes)} />
+        <StatCard label="Logical Size" value={formatBytes(stats.logicalStorageBytes)} />
+        <StatCard label="Dedup Savings" value={formatBytes(stats.dedupSavingsBytes)} accent="text-purple-600" />
+        <StatCard label="Dedup Ratio" value={`${stats.dedupRatio ?? 1}×`} accent="text-purple-600" />
+        <StatCard label="Unique Blobs" value={stats.uniqueBlobs ?? 0} />
         <StatCard label="Connected Providers" value={stats.connectedProviders} />
         <StatCard label="Active Schedules" value={stats.activeSchedules} />
       </div>

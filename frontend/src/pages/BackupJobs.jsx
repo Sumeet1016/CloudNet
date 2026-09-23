@@ -135,12 +135,23 @@ export default function BackupJobs() {
                 {expandedJob === job.id && (
                   <div className="px-4 pb-3 border-t border-gray-50">
                     {job.errorMessage && <p className="text-xs text-red-500 mt-2">{job.errorMessage}</p>}
-                    {(jobFiles[job.id] || []).map((f) => (
-                      <div key={f.id} className="flex items-center justify-between text-xs text-gray-600 py-1.5">
-                        <span>{f.originalFileName} (v{f.versionNumber}) - {(f.fileSizeBytes / 1024).toFixed(1)} KB</span>
-                        <button onClick={() => restore(f.id, f.originalFileName)} className="text-brand-600 hover:underline">Restore</button>
-                      </div>
-                    ))}
+                    {(jobFiles[job.id] || []).map((f) => {
+                      const blob = f.contentBlob
+                      const deduped = blob && blob.refCount > 1
+                      return (
+                        <div key={f.id} className="flex items-center justify-between text-xs text-gray-600 py-1.5">
+                          <div className="flex items-center gap-2">
+                            <span>{f.originalFileName} (v{f.versionNumber}) - {(f.fileSizeBytes / 1024).toFixed(1)} KB</span>
+                            {deduped && (
+                              <span className="px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 text-[10px] font-medium">
+                                DEDUPED ×{blob.refCount}
+                              </span>
+                            )}
+                          </div>
+                          <button onClick={() => restore(f.id, f.originalFileName)} className="text-brand-600 hover:underline">Restore</button>
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
               </div>

@@ -27,6 +27,7 @@ public class BackupService {
     private final CloudProviderRepository cloudProviderRepository;
     private final StorageProviderFactory storageProviderFactory;
     private final EncryptionService encryptionService;
+    private final DeduplicationService deduplicationService;
     private final ActivityLogService activityLogService;
 
     public List<BackupJob> getUserJobs(User user) {
@@ -34,11 +35,17 @@ public class BackupService {
     }
 
     /**
-     * Manually triggered backup: encrypts each uploaded file (if the policy
-     * requires it), pushes it to the chosen provider, and records everything.
+     * Manually triggered backup.
+     *
+     * For each file:
+     *   1. Write to a temp file
+     *   2. Compute SHA-256 of the plaintext
+     *   3. Ask DeduplicationService for a blob (reuses if identical content
+     *      already exists for this user+provider; uploads only on miss)
+     *   4. Record a BackupFile pointing at that blob
      */
     public BackupJob runManualBackup(User user, Long cloudProviderId, BackupPolicy policy,
-                                      String jobName, MultipartFile[] uploadedFiles) {
+                                     String jobName, MultipartFile[] uploadedFiles) {
 
         CloudProvider provider = cloudProviderRepository.findByIdAndUser(cloudProviderId, user)
                 .orElseThrow(() -> new IllegalArgumentException("Cloud provider not found"));
@@ -54,56 +61,73 @@ public class BackupService {
                 .build();
         job = backupJobRepository.save(job);
 
+        int dedupHits = 0;
+        int stored = 0;
+
         try {
-            CloudStorageProvider storage = storageProviderFactory.getProvider(provider.getType());
             boolean encrypt = policy == null || policy.isEncryptionEnabled();
 
             for (MultipartFile mf : uploadedFiles) {
                 File tempInput = File.createTempFile("cloudnest-upload-", "-" + mf.getOriginalFilename());
                 mf.transferTo(tempInput);
 
-                File toUpload = encrypt ? encryptionService.encryptFile(tempInput) : tempInput;
+                // 1) Hash the PLAINTEXT — this is the dedup key
                 String checksum = encryptionService.computeChecksum(tempInput);
 
-                String targetName = (encrypt ? mf.getOriginalFilename() + ".enc" : mf.getOriginalFilename());
-                String storagePath = storage.upload(provider, toUpload, targetName);
+                // 2) Ask dedup service to get-or-create the blob (upload only on miss)
+                String targetName = encrypt
+                        ? mf.getOriginalFilename() + ".enc"
+                        : mf.getOriginalFilename();
 
+                DeduplicationService.BlobResult result = deduplicationService.getOrCreateBlob(
+                        user, provider, tempInput, checksum, encrypt, targetName);
+
+                if (result.deduplicated) {
+                    dedupHits++;
+                } else {
+                    stored++;
+                }
+
+                // 3) Compute next version (user-scoped — fixes a latent cross-user bug)
                 int nextVersion = backupFileRepository
-                        .findByOriginalFileNameOrderByVersionNumberDesc(mf.getOriginalFilename())
-                        .stream().findFirst().map(f -> f.getVersionNumber() + 1).orElse(1);
+                        .findMaxVersionForUserAndFileName(user, mf.getOriginalFilename()) + 1;
 
+                // 4) Link BackupFile -> ContentBlob
                 BackupFile backupFile = BackupFile.builder()
                         .backupJob(job)
                         .originalFileName(mf.getOriginalFilename())
-                        .storagePath(storagePath)
-                        .fileSizeBytes(mf.getSize())
+                        .storagePath(result.blob.getStoragePath())
+                        .fileSizeBytes(result.blob.getSizeBytes())
                         .checksum(checksum)
                         .versionNumber(nextVersion)
                         .encrypted(encrypt)
+                        .contentBlob(result.blob)
                         .build();
                 backupFileRepository.save(backupFile);
 
                 Files.deleteIfExists(tempInput.toPath());
-                if (encrypt) Files.deleteIfExists(toUpload.toPath());
             }
 
             job.setStatus(BackupJob.BackupStatus.SUCCESS);
             job.setCompletedAt(LocalDateTime.now());
-            activityLogService.log(user, "BACKUP_SUCCESS", "Backup '" + job.getJobName() + "' completed on " + provider.getType());
+            activityLogService.log(user, "BACKUP_SUCCESS",
+                    String.format("Backup '%s' on %s — %d stored, %d deduplicated",
+                            job.getJobName(), provider.getType(), stored, dedupHits));
 
         } catch (IOException | RuntimeException e) {
             log.error("Backup job {} failed", job.getId(), e);
             job.setStatus(BackupJob.BackupStatus.FAILED);
             job.setErrorMessage(e.getMessage());
             job.setCompletedAt(LocalDateTime.now());
-            activityLogService.log(user, "BACKUP_FAILED", "Backup '" + job.getJobName() + "' failed: " + e.getMessage(),
+            activityLogService.log(user, "BACKUP_FAILED",
+                    "Backup '" + job.getJobName() + "' failed: " + e.getMessage(),
                     ActivityLog.LogLevel.ERROR);
         }
 
         return backupJobRepository.save(job);
     }
 
-    /** Restores a given backup file: downloads + decrypts (if needed) and returns the local file to send back */
+    /** Restores a file: downloads the blob's bytes + decrypts if needed. */
     public File restoreFile(User user, Long backupFileId) {
         BackupFile backupFile = backupFileRepository.findById(backupFileId)
                 .orElseThrow(() -> new IllegalArgumentException("Backup file not found"));
@@ -113,11 +137,24 @@ public class BackupService {
             throw new SecurityException("Not authorized to restore this file");
         }
 
-        CloudProvider provider = job.getCloudProvider();
-        CloudStorageProvider storage = storageProviderFactory.getProvider(provider.getType());
+        // Prefer the blob's provider/storagePath. Fall back to BackupFile fields
+        // so pre-dedup rows still restore.
+        CloudProvider provider;
+        String storagePath;
 
-        File downloaded = storage.download(provider, backupFile.getStoragePath());
-        File result = backupFile.isEncrypted() ? encryptionService.decryptFile(downloaded) : downloaded;
+        if (backupFile.getContentBlob() != null) {
+            provider = backupFile.getContentBlob().getCloudProvider();
+            storagePath = backupFile.getContentBlob().getStoragePath();
+        } else {
+            provider = job.getCloudProvider();
+            storagePath = backupFile.getStoragePath();
+        }
+
+        CloudStorageProvider storage = storageProviderFactory.getProvider(provider.getType());
+        File downloaded = storage.download(provider, storagePath);
+        File result = backupFile.isEncrypted()
+                ? encryptionService.decryptFile(downloaded)
+                : downloaded;
 
         job.setStatus(BackupJob.BackupStatus.RESTORED);
         backupJobRepository.save(job);

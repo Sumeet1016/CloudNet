@@ -27,13 +27,17 @@ public class BackupFile {
     @Column(name = "original_file_name", nullable = false)
     private String originalFileName;
 
-    /** Path or remote object id where the (encrypted) file actually lives */
-    @Column(name = "storage_path", nullable = false, length = 1000)
+    /**
+     * Denormalized from ContentBlob for fast lookups and backward compat.
+     * Still populated on every save — the source of truth is the blob.
+     */
+    @Column(name = "storage_path", length = 1000)
     private String storagePath;
 
     @Column(name = "file_size_bytes")
     private long fileSizeBytes;
 
+    /** SHA-256 hex of the plaintext. Denormalized from ContentBlob. */
     @Column(name = "checksum")
     private String checksum;
 
@@ -44,6 +48,14 @@ public class BackupFile {
     @Column(name = "encrypted")
     @Builder.Default
     private boolean encrypted = true;
+
+    /**
+     * The deduplicated payload this file points to.
+     * Nullable for pre-dedup rows that haven't been migrated yet.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_blob_id")
+    private ContentBlob contentBlob;
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;

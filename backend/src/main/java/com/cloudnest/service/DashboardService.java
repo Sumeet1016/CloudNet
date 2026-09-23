@@ -6,9 +6,11 @@ import com.cloudnest.entity.BackupJob;
 import com.cloudnest.entity.CloudProvider;
 import com.cloudnest.entity.User;
 import com.cloudnest.repository.ActivityLogRepository;
+import com.cloudnest.repository.BackupFileRepository;
 import com.cloudnest.repository.BackupJobRepository;
 import com.cloudnest.repository.BackupScheduleRepository;
 import com.cloudnest.repository.CloudProviderRepository;
+import com.cloudnest.repository.ContentBlobRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ public class DashboardService {
     private final BackupScheduleRepository backupScheduleRepository;
     private final ActivityLogRepository activityLogRepository;
     private final CloudProviderService cloudProviderService;
+    private final BackupFileRepository backupFileRepository;
+    private final ContentBlobRepository contentBlobRepository;
 
     public DashboardStatsResponse getStats(User user) {
         List<BackupJob> jobs = backupJobRepository.findByUserOrderByStartedAtDesc(user);
@@ -34,10 +38,20 @@ public class DashboardService {
         long success = backupJobRepository.countByUserAndStatus(user, BackupJob.BackupStatus.SUCCESS);
         long failed = backupJobRepository.countByUserAndStatus(user, BackupJob.BackupStatus.FAILED);
 
+        // Existing behavior preserved — live sum of what each provider reports.
         long totalStorage = providers.stream()
                 .filter(CloudProvider::isConnected)
                 .mapToLong(cloudProviderService::getUsageForProvider)
                 .sum();
+
+        // --- Dedup stats (new) ---
+        long logicalBytes = backupFileRepository.sumLogicalBytesByUser(user);
+        long physicalBytes = contentBlobRepository.sumStoredBytesByUser(user);
+        long savings = Math.max(0, logicalBytes - physicalBytes);
+        double ratio = physicalBytes > 0
+                ? Math.round(((double) logicalBytes / physicalBytes) * 100.0) / 100.0
+                : 1.0;
+        long uniqueBlobs = contentBlobRepository.countByUser(user);
 
         Map<String, Long> byProvider = new HashMap<>();
         for (BackupJob job : jobs) {
@@ -50,6 +64,11 @@ public class DashboardService {
                 .successfulBackups(success)
                 .failedBackups(failed)
                 .totalStorageUsedBytes(totalStorage)
+                .physicalStorageBytes(physicalBytes)
+                .logicalStorageBytes(logicalBytes)
+                .dedupSavingsBytes(savings)
+                .dedupRatio(ratio)
+                .uniqueBlobs(uniqueBlobs)
                 .connectedProviders((int) providers.stream().filter(CloudProvider::isConnected).count())
                 .activeSchedules((int) backupScheduleRepository.findByUser(user).stream()
                         .filter(s -> s.isActive()).count())
